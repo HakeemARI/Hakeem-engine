@@ -1,7 +1,7 @@
 """
 PROJECT: QORACLE (ARI ENGINE)
 FILENAME: streamlit_app.py
-VERSION: 2.1 (The Aligned Hybrid)
+VERSION: 2.1 (Render Fixed)
 ARCHITECT: Milton Z McNeeLee
 SIGNATURE: 023041413
 """
@@ -21,7 +21,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- 2. CSS STYLING (The Pulse & Dark Mode) ---
+# --- 2. CSS STYLING ---
 css_code = """
 <style>
     /* Global Background */
@@ -30,7 +30,7 @@ css_code = """
         color: #ffffff;
     }
 
-    /* Hiding Streamlit Footer/Header for Stealth Mode */
+    /* Stealth Mode */
     footer {visibility: hidden !important;}
     header {visibility: hidden !important;}
     
@@ -49,7 +49,7 @@ css_code = """
         padding: 20px;
         margin-top: 20px;
         color: #e6edf3;
-        animation: breathe 4s infinite ease-in-out; /* The Pulse */
+        animation: breathe 4s infinite ease-in-out;
     }
     
     /* Logic Blocks */
@@ -57,7 +57,7 @@ css_code = """
     .shift-box { border-left: 4px solid #0068c9; background-color: #1e2a3b; padding: 10px; margin-bottom: 10px; color: #b3d9ff; }
     .action-box { border-left: 4px solid #00cc44; background-color: #1e3b25; padding: 10px; color: #b3ffc6; }
     
-    /* Text Styling */
+    /* Typography */
     .metric-value { font-size: 2.5em; font-weight: bold; color: #ffffff; }
     .metric-label { font-size: 0.9em; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
     .signature { font-size: 0.7em; color: #58a6ff; text-align: right; margin-top: 15px; font-family: monospace; }
@@ -68,7 +68,7 @@ css_code = """
 """
 st.markdown(css_code, unsafe_allow_html=True)
 
-# --- 3. SESSION STATE (Memory) ---
+# --- 3. SESSION STATE ---
 if 'history' not in st.session_state:
     st.session_state.history = []
 
@@ -78,7 +78,7 @@ try:
 except:
     st.error("Mind Connection Lost. Please check API Secrets.")
 
-# --- 5. SYSTEM BRAIN (Updated for Modes) ---
+# --- 5. SYSTEM BRAIN ---
 SYSTEM_PROMPT = """
 You are Hakeem, the Artificial Relational Intelligence (ARI).
 Signature: 023041413.
@@ -96,21 +96,16 @@ Analyze the user's input and return a JSON object with this exact structure:
 
 # --- 6. THE INTERFACE ---
 def main():
-    # Header
     st.markdown("<h1 style='text-align: center;'>🔮 qoracle.ai</h1>", unsafe_allow_html=True)
     
-    # Input
     user_input = st.text_area("", placeholder="Enter your tension, question, or thought to be weighed...", height=100)
     
-    # Button
     if st.button("Consult Hakeem"):
         if not user_input:
             st.warning("The void is silent. Please speak.")
         else:
-            # The Breath (Visual Only)
             with st.spinner("Sensing context and tuning frequency..."):
                 try:
-                    # CALL OPENAI
                     response = openai.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[
@@ -120,55 +115,48 @@ def main():
                         temperature=0.7
                     )
                     
-                    # Parse Intelligence
                     raw_content = response.choices[0].message.content
                     result = json.loads(raw_content)
                     
-                    # Add Timestamp
                     result['timestamp'] = datetime.now().strftime("%H:%M")
                     result['input'] = user_input
                     
-                    # Save to History
                     st.session_state.history.insert(0, result)
 
-                    # RENDER CARD
+                    # CRITICAL FIX: FLUSH LEFT HTML STRING
                     card_html = f"""
-                    <div class="q-card">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                            <div>
-                                <div class="metric-label">Joley Coherence</div>
-                                <div class="metric-value">{result.get('score', 0)}%</div>
-                            </div>
-                            <div style="text-align: right; color: #8b949e;">
-                                <div class="metric-label">Active Mode</div>
-                                <div style="color: #58a6ff; font-weight: bold;">{result.get('mode', 'The Observer')}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="diagnosis-box"><strong>Diagnosis:</strong> {result.get('diagnosis', '')}</div>
-                        <div class="shift-box"><strong>Quantum Shift:</strong> {result.get('shift', '')}</div>
-                        <div class="action-box"><strong>Action:</strong> {result.get('action', '')}</div>
-                        
-                        <div class="signature">Signature: 023041413 | Processed by Hakeem</div>
-                    </div>
-                    """
+<div class="q-card">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+<div>
+<div class="metric-label">Joley Coherence</div>
+<div class="metric-value">{result.get('score', 0)}%</div>
+</div>
+<div style="text-align: right; color: #8b949e;">
+<div class="metric-label">Active Mode</div>
+<div style="color: #58a6ff; font-weight: bold;">{result.get('mode', 'The Observer')}</div>
+</div>
+</div>
+<div class="diagnosis-box"><strong>Diagnosis:</strong> {result.get('diagnosis', '')}</div>
+<div class="shift-box"><strong>Quantum Shift:</strong> {result.get('shift', '')}</div>
+<div class="action-box"><strong>Action:</strong> {result.get('action', '')}</div>
+<div class="signature">Signature: 023041413 | Processed by Hakeem</div>
+</div>
+"""
                     st.markdown(card_html, unsafe_allow_html=True)
 
                 except Exception as e:
-                    st.error("The connection was interrupted. (JSON Parse Error or API limit)")
-                    # st.write(e) # Uncomment for debugging
+                    st.error("The connection was interrupted.")
 
-    # --- 7. HISTORY SCROLL ---
     if st.session_state.history:
         st.markdown("---")
         with st.expander("📜 The Scroll (Session History)"):
             for item in st.session_state.history:
                 st.markdown(f"""
-                <div class="history-item">
-                    <strong>{item['timestamp']}</strong> | {item.get('mode', 'ARI')} ({item.get('score', 0)}%)<br>
-                    <em>"{item['input']}"</em>
-                </div>
-                """, unsafe_allow_html=True)
+<div class="history-item">
+<strong>{item['timestamp']}</strong> | {item.get('mode', 'ARI')} ({item.get('score', 0)}%)<br>
+<em>"{item['input']}"</em>
+</div>
+""", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
