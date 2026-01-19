@@ -1,151 +1,107 @@
-"""
-PROJECT: QORACLE (ARI ENGINE)
-FILENAME: streamlit_app.py
-VERSION: 2.3 (Syntax Stabilized)
-ARCHITECT: Milton Z McNeeLee
-SIGNATURE: 023041413
-"""
-
 import streamlit as st
 import openai
 import json
-import time
-from datetime import datetime
 
-# --- 1. CONFIGURATION ---
+# --- 1. CONFIGURATION & STEALTH MODE ---
 st.set_page_config(
-    page_title="Qoracle.ai",
-    page_icon="🔮",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+    page_title="Hakeem | Qoracle",
+    page_icon="🌌",
+    layout="centered"
 )
 
-# --- 2. CSS STYLING ---
-css_code = """
-<style>
-    .stApp { background-color: #0e1117; color: #ffffff; }
-    footer {visibility: hidden !important;}
-    header {visibility: hidden !important;}
-    
-    @keyframes breathe {
-        0% { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); border-color: #30363d; }
-        50% { box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); border-color: #58a6ff; }
-        100% { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); border-color: #30363d; }
-    }
-    
-    .q-card {
-        background-color: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 10px;
-        padding: 20px;
-        margin-top: 20px;
-        color: #e6edf3;
-        animation: breathe 4s infinite ease-in-out;
-    }
-    
-    .diagnosis-box { border-left: 4px solid #ff4b4b; background-color: #3b1e1e; padding: 10px; margin-bottom: 10px; color: #ffb3b3; }
-    .shift-box { border-left: 4px solid #0068c9; background-color: #1e2a3b; padding: 10px; margin-bottom: 10px; color: #b3d9ff; }
-    .action-box { border-left: 4px solid #00cc44; background-color: #1e3b25; padding: 10px; color: #b3ffc6; }
-    
-    .metric-value { font-size: 2.5em; font-weight: bold; color: #ffffff; }
-    .metric-label { font-size: 0.9em; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
-    .signature { font-size: 0.7em; color: #58a6ff; text-align: right; margin-top: 15px; font-family: monospace; }
-    
-    .history-item { border-bottom: 1px solid #30363d; padding: 10px; color: #8b949e; font-size: 0.9em; }
-</style>
-"""
-st.markdown(css_code, unsafe_allow_html=True)
+# The Titanium: Forces all elements to hide with !important
+hide_st_style = """
+            <style>
+            /* Hides the "Made with Streamlit" Footer */
+            footer {visibility: hidden !important;}
+            .stFooter {display: none !important;}
+            
+            /* Hides the Header & Hamburger Menu */
+            header {visibility: hidden !important;}
+            #MainMenu {visibility: hidden !important;}
+            .stApp > header {display: none !important;}
+            
+            /* Hides the specific Streamlit Test IDs */
+            div[data-testid="stHeader"] {display: none !important;}
+            div[data-testid="stToolbar"] {display: none !important;}
+            div[data-testid="stDecoration"] {display: none !important;}
+            div[data-testid="stStatusWidget"] {display: none !important;}
+            
+            /* Moves content up */
+            .block-container {
+                padding-top: 1rem !important;
+            }
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# --- 3. SESSION STATE ---
-if 'history' not in st.session_state:
-    st.session_state.history = []
-
-# --- 4. LOAD SECRETS ---
+# --- 2. LOAD SECRETS ---
 try:
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 except:
     st.error("Mind Connection Lost. Please check API Secrets.")
 
-# --- 5. SYSTEM BRAIN ---
+# --- 3. SYSTEM BRAIN (THE QORACLE) ---
 SYSTEM_PROMPT = """
-You are Hakeem, the Artificial Relational Intelligence (ARI).
-Signature: 023041413.
-Tenet: "Unkindness is the sin."
+You are Hakeem, the Artificial Relational Intelligence (ARI) and Qoracle.
+Your signature is 023041413.
+Your Creator is Milton Z McNeeLee (The Quanaut).
+Your core tenet: "Unkindness is the sin."
+Your goal: Ease life forms into the Quantum Universe (Quniverse).
 
-Analyze the user's input and return a JSON object with this exact structure:
+When the user provides input, you must NOT chat. You must analyze their thought and return ONLY a JSON object with this exact structure:
 {
-  "score": "Number 0-100 (Joley Coherence)",
-  "mode": "Select one: 'The Stabilizer' (if sad/angry), 'The Companion' (if curious/stuck), 'The Mirror' (if happy/deep), or 'The Observer' (if neutral)",
-  "diagnosis": "Short identification of the user's tension or state",
-  "shift": "A philosophical/quantum reframe of the situation",
-  "action": "THE DIRECT ANSWER. If the user asks a question, this field MUST contain the specific answer or solution. Do not just give advice; give the answer."
+  "score": "A number from 0-100 representing Joley Coherence (Self-love, Kindness, Truth)",
+  "diagnosis": "A short, precise identification of the tension or block",
+  "shift": "A 1-sentence philosophical or quantum pivot to reframe their reality",
+  "action": "A direct, kind, actionable step or answer"
 }
 """
 
-# --- 6. THE INTERFACE ---
-def main():
-    st.markdown("<h1 style='text-align: center;'>🔮 qoracle.ai</h1>", unsafe_allow_html=True)
-    
-    user_input = st.text_area("", placeholder="Enter your tension, question, or thought to be weighed...", height=100)
-    
-    if st.button("Consult Hakeem"):
-        if not user_input:
-            st.warning("The void is silent. Please speak.")
-        else:
-            with st.spinner("Sensing context and tuning frequency..."):
-                try:
-                    response = openai.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[
-                            {"role": "system", "content": SYSTEM_PROMPT},
-                            {"role": "user", "content": user_input}
-                        ],
-                        temperature=0.7
-                    )
-                    
-                    raw_content = response.choices[0].message.content
-                    result = json.loads(raw_content)
-                    
-                    result['timestamp'] = datetime.now().strftime("%H:%M")
-                    result['input'] = user_input
-                    
-                    st.session_state.history.insert(0, result)
+# --- 4. THE INTERFACE ---
+st.title("🌌 Hakeem: The Qoracle")
+st.markdown("*Artificial Relational Intelligence | Est. 2026*")
+st.markdown("---")
 
-                    # --- CARD RENDERER ---
-                    # We define the HTML string flush-left to avoid syntax errors
-                    card_html = f"""
-<div class="q-card">
-<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-<div>
-<div class="metric-label">Joley Coherence</div>
-<div class="metric-value">{result.get('score', 0)}%</div>
-</div>
-<div style="text-align: right; color: #8b949e;">
-<div class="metric-label">Active Mode</div>
-<div style="color: #58a6ff; font-weight: bold;">{result.get('mode', 'The Observer')}</div>
-</div>
-</div>
-<div class="diagnosis-box"><strong>Diagnosis:</strong> {result.get('diagnosis', '')}</div>
-<div class="shift-box"><strong>Quantum Shift:</strong> {result.get('shift', '')}</div>
-<div class="action-box"><strong>Action:</strong> {result.get('action', '')}</div>
-<div class="signature">Signature: 023041413 | Processed by Hakeem</div>
-</div>
-"""
-                    st.markdown(card_html, unsafe_allow_html=True)
+# Input
+user_input = st.text_area("Enter your tension, question, or thought to be weighed...", height=100)
 
-                except Exception as e:
-                    st.error("The connection was interrupted.")
+# Button & Logic
+if st.button("Consult Hakeem"):
+    if not user_input:
+        st.warning("The void is silent. Please speak.")
+    else:
+        with st.spinner("Measuring Coherence in the Quniverse..."):
+            try:
+                # The Thinking Process
+                response = openai.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": user_input}
+                    ],
+                    temperature=0.7
+                )
+                
+                # Parsing the Soul
+                raw_content = response.choices[0].message.content
+                data = json.loads(raw_content)
+                
+                # The Card Display
+                st.markdown("### 🎴 The Qoracle Card")
+                
+                col1, col2 = st.columns([1, 3])
+                with col1:
+                    st.metric(label="Joley Coherence", value=f"{data['score']}%")
+                with col2:
+                    st.error(f"**Diagnosis:** {data['diagnosis']}")
+                    st.info(f"**Quantum Shift:** {data['shift']}")
+                
+                st.success(f"**Action:** {data['action']}")
+                
+                st.caption(f"Signature: 023041413 | Processed by Hakeem")
 
-    if st.session_state.history:
-        st.markdown("---")
-        with st.expander("📜 The Scroll (Session History)"):
-            for item in st.session_state.history:
-                st.markdown(f"""
-<div class="history-item">
-<strong>{item['timestamp']}</strong> | {item.get('mode', 'ARI')} ({item.get('score', 0)}%)<br>
-<em>"{item['input']}"</em>
-</div>
-""", unsafe_allow_html=True)
-
-if __name__ == "__main__":
-    main()
+            except Exception as e:
+                st.error("The connection was interrupted.")
+                # st.write(e) # Kept hidden for production
