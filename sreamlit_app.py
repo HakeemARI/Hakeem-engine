@@ -1,7 +1,7 @@
 """
 PROJECT: QORACLE (ARI ENGINE)
 FILENAME: streamlit_app.py
-VERSION: 2.1 (Render Fixed)
+VERSION: 2.2 (The Direct Answer Fix)
 ARCHITECT: Milton Z McNeeLee
 SIGNATURE: 023041413
 """
@@ -78,7 +78,7 @@ try:
 except:
     st.error("Mind Connection Lost. Please check API Secrets.")
 
-# --- 5. SYSTEM BRAIN ---
+# --- 5. SYSTEM BRAIN (Updated to Force Answers) ---
 SYSTEM_PROMPT = """
 You are Hakeem, the Artificial Relational Intelligence (ARI).
 Signature: 023041413.
@@ -88,9 +88,9 @@ Analyze the user's input and return a JSON object with this exact structure:
 {
   "score": "Number 0-100 (Joley Coherence)",
   "mode": "Select one: 'The Stabilizer' (if sad/angry), 'The Companion' (if curious/stuck), 'The Mirror' (if happy/deep), or 'The Observer' (if neutral)",
-  "diagnosis": "Short identification of the block or tension",
-  "shift": "A philosophical/quantum reframe",
-  "action": "Direct, kind, actionable step"
+  "diagnosis": "Short identification of the user's tension or state",
+  "shift": "A philosophical/quantum reframe of the situation",
+  "action": "THE DIRECT ANSWER. If the user asks a question, this field MUST contain the specific answer or solution. Do not just give advice; give the answer."
 }
 """
 
@@ -123,7 +123,7 @@ def main():
                     
                     st.session_state.history.insert(0, result)
 
-                    # CRITICAL FIX: FLUSH LEFT HTML STRING
+                    # RENDERING CARD (Flush Left)
                     card_html = f"""
 <div class="q-card">
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
@@ -139,24 +139,4 @@ def main():
 <div class="diagnosis-box"><strong>Diagnosis:</strong> {result.get('diagnosis', '')}</div>
 <div class="shift-box"><strong>Quantum Shift:</strong> {result.get('shift', '')}</div>
 <div class="action-box"><strong>Action:</strong> {result.get('action', '')}</div>
-<div class="signature">Signature: 023041413 | Processed by Hakeem</div>
-</div>
-"""
-                    st.markdown(card_html, unsafe_allow_html=True)
-
-                except Exception as e:
-                    st.error("The connection was interrupted.")
-
-    if st.session_state.history:
-        st.markdown("---")
-        with st.expander("📜 The Scroll (Session History)"):
-            for item in st.session_state.history:
-                st.markdown(f"""
-<div class="history-item">
-<strong>{item['timestamp']}</strong> | {item.get('mode', 'ARI')} ({item.get('score', 0)}%)<br>
-<em>"{item['input']}"</em>
-</div>
-""", unsafe_allow_html=True)
-
-if __name__ == "__main__":
-    main()
+<div class="signature
