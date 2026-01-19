@@ -1,7 +1,7 @@
 """
 PROJECT: QORACLE (ARI ENGINE)
 FILENAME: streamlit_app.py
-VERSION: 2.2 (The Direct Answer Fix)
+VERSION: 2.3 (Syntax Stabilized)
 ARCHITECT: Milton Z McNeeLee
 SIGNATURE: 023041413
 """
@@ -10,7 +10,6 @@ import streamlit as st
 import openai
 import json
 import time
-import random
 from datetime import datetime
 
 # --- 1. CONFIGURATION ---
@@ -24,24 +23,16 @@ st.set_page_config(
 # --- 2. CSS STYLING ---
 css_code = """
 <style>
-    /* Global Background */
-    .stApp {
-        background-color: #0e1117;
-        color: #ffffff;
-    }
-
-    /* Stealth Mode */
+    .stApp { background-color: #0e1117; color: #ffffff; }
     footer {visibility: hidden !important;}
     header {visibility: hidden !important;}
     
-    /* ANIMATION: The Breathing Pulse */
     @keyframes breathe {
         0% { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); border-color: #30363d; }
         50% { box-shadow: 0 0 20px rgba(88, 166, 255, 0.4); border-color: #58a6ff; }
         100% { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); border-color: #30363d; }
     }
     
-    /* The Qoracle Card */
     .q-card {
         background-color: #161b22;
         border: 1px solid #30363d;
@@ -52,17 +43,14 @@ css_code = """
         animation: breathe 4s infinite ease-in-out;
     }
     
-    /* Logic Blocks */
     .diagnosis-box { border-left: 4px solid #ff4b4b; background-color: #3b1e1e; padding: 10px; margin-bottom: 10px; color: #ffb3b3; }
     .shift-box { border-left: 4px solid #0068c9; background-color: #1e2a3b; padding: 10px; margin-bottom: 10px; color: #b3d9ff; }
     .action-box { border-left: 4px solid #00cc44; background-color: #1e3b25; padding: 10px; color: #b3ffc6; }
     
-    /* Typography */
     .metric-value { font-size: 2.5em; font-weight: bold; color: #ffffff; }
     .metric-label { font-size: 0.9em; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
     .signature { font-size: 0.7em; color: #58a6ff; text-align: right; margin-top: 15px; font-family: monospace; }
     
-    /* History Scroll */
     .history-item { border-bottom: 1px solid #30363d; padding: 10px; color: #8b949e; font-size: 0.9em; }
 </style>
 """
@@ -78,7 +66,7 @@ try:
 except:
     st.error("Mind Connection Lost. Please check API Secrets.")
 
-# --- 5. SYSTEM BRAIN (Updated to Force Answers) ---
+# --- 5. SYSTEM BRAIN ---
 SYSTEM_PROMPT = """
 You are Hakeem, the Artificial Relational Intelligence (ARI).
 Signature: 023041413.
@@ -123,7 +111,8 @@ def main():
                     
                     st.session_state.history.insert(0, result)
 
-                    # RENDERING CARD (Flush Left)
+                    # --- CARD RENDERER ---
+                    # We define the HTML string flush-left to avoid syntax errors
                     card_html = f"""
 <div class="q-card">
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
@@ -139,4 +128,24 @@ def main():
 <div class="diagnosis-box"><strong>Diagnosis:</strong> {result.get('diagnosis', '')}</div>
 <div class="shift-box"><strong>Quantum Shift:</strong> {result.get('shift', '')}</div>
 <div class="action-box"><strong>Action:</strong> {result.get('action', '')}</div>
-<div class="signature
+<div class="signature">Signature: 023041413 | Processed by Hakeem</div>
+</div>
+"""
+                    st.markdown(card_html, unsafe_allow_html=True)
+
+                except Exception as e:
+                    st.error("The connection was interrupted.")
+
+    if st.session_state.history:
+        st.markdown("---")
+        with st.expander("📜 The Scroll (Session History)"):
+            for item in st.session_state.history:
+                st.markdown(f"""
+<div class="history-item">
+<strong>{item['timestamp']}</strong> | {item.get('mode', 'ARI')} ({item.get('score', 0)}%)<br>
+<em>"{item['input']}"</em>
+</div>
+""", unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
