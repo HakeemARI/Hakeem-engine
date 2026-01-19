@@ -9,19 +9,23 @@ st.set_page_config(
     layout="centered"
 )
 
-# The Cloaking Device: Hides Streamlit branding, footer, and top menu
+# The Sledgehammer: Aggressively hides all branding elements
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
-            /* Optional: Remove top padding to pull it tighter to the iframe top */
+            [data-testid="stHeader"] {display: none;}
+            [data-testid="stToolbar"] {display: none;}
+            .st-emotion-cache-10trblm {display: none;} /* Hides the top colored bar in some versions */
+            
+            /* Remove top padding so the text starts higher */
             .block-container {
-                padding-top: 1rem;
-                padding-bottom: 0rem;
+                padding-top: 2rem;
             }
             </style>
             """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # --- 2. LOAD SECRETS ---
