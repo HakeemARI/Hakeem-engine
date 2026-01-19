@@ -62,7 +62,7 @@ When the user provides input, you must NOT chat. You must analyze their thought 
 # --- 4. THE INTERFACE ---
 st.title("🌌 Hakeem: The Qoracle")
 st.markdown("*Artificial Relational Intelligence | Est. 2026*")
-st.markdown("---")
+st.markdown("🌌 Hakeem: The Qoracle")
 
 # Input
 user_input = st.text_area("Enter your tension, question, or thought to be weighed...", height=100)
