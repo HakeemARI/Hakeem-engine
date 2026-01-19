@@ -66,7 +66,7 @@ st.markdown("---")
 user_input = st.text_area("", placeholder="Enter your tension, question, or thought to be weighed...", height=100)
 
 # Button & Logic
-if st.button("Consult Hakeem"):
+if st.button("Consult Qoracle"):
     if not user_input:
         st.warning("The void is silent. Please speak.")
     else:
