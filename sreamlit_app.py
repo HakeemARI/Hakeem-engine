@@ -9,19 +9,31 @@ st.set_page_config(
     layout="centered"
 )
 
-# The Cloaking Device: Hides Streamlit branding, footer, and top menu
+# The Titanium: Forces all elements to hide with !important
 hide_st_style = """
             <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            /* Optional: Remove top padding to pull it tighter to the iframe top */
+            /* Hides the "Made with Streamlit" Footer */
+            footer {visibility: hidden !important;}
+            .stFooter {display: none !important;}
+            
+            /* Hides the Header & Hamburger Menu */
+            header {visibility: hidden !important;}
+            #MainMenu {visibility: hidden !important;}
+            .stApp > header {display: none !important;}
+            
+            /* Hides the specific Streamlit Test IDs */
+            div[data-testid="stHeader"] {display: none !important;}
+            div[data-testid="stToolbar"] {display: none !important;}
+            div[data-testid="stDecoration"] {display: none !important;}
+            div[data-testid="stStatusWidget"] {display: none !important;}
+            
+            /* Moves content up */
             .block-container {
-                padding-top: 1rem;
-                padding-bottom: 0rem;
+                padding-top: 1rem !important;
             }
             </style>
             """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # --- 2. LOAD SECRETS ---
