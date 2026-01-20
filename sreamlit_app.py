@@ -24,13 +24,14 @@ def init_google_sheet():
 
     try:
         # Load the JSON string from Secrets
-        json_creds = json.loads(st.secrets["google_credentials"])
+        # FIX: strict=False allows "Control Characters" (like hidden newlines) to pass through
+        json_creds = json.loads(st.secrets["google_credentials"], strict=False)
+        
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_dict(json_creds, scope)
         client = gspread.authorize(creds)
         
         # CONNECT TO THE SHEET
-        # MAKE SURE YOUR GOOGLE SHEET IS NAMED EXACTLY "Qoracle_Logs"
         sheet = client.open("Qoracle_Logs").sheet1
         return sheet
     except Exception as e:
