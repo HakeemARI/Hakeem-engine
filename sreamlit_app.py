@@ -10,21 +10,32 @@ st.set_page_config(page_title="The Qoracle", page_icon="🌌", layout="centered"
 
 # --- AUTHENTICATION (The Vault) ---
 # 1. OpenAI Connection
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+try:
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
+except:
+    st.error("MISSING SECRET: OPENAI_API_KEY not found.")
 
 # 2. Google Sheets Connection (The Memory)
 def init_google_sheet():
+    # Check if the secret exists first
+    if "google_credentials" not in st.secrets:
+        st.error("MISSING SECRET: 'google_credentials' not found in Secrets.")
+        return None
+
     try:
         # Load the JSON string from Secrets
         json_creds = json.loads(st.secrets["google_credentials"])
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_dict(json_creds, scope)
         client = gspread.authorize(creds)
+        
         # CONNECT TO THE SHEET
+        # MAKE SURE YOUR GOOGLE SHEET IS NAMED EXACTLY "Qoracle_Logs"
         sheet = client.open("Qoracle_Logs").sheet1
         return sheet
     except Exception as e:
-        # If memory fails, we don't want the app to crash. We just log the error silently.
+        # LOUD ERROR: This will tell us why it failed
+        st.error(f"MEMORY CONNECTION FAILED: {e}")
         return None
 
 # Initialize the Sheet
@@ -116,7 +127,7 @@ if st.button("Consult Qoracle"):
 
                 st.caption(f"Signature: 023041413 | Processed by Hakeem")
                 
-                # 3. WRITE TO MEMORY (Google Sheets)
+                # 3. WRITE TO MEMORY (LOUD MODE)
                 if memory_bank:
                     try:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -128,10 +139,11 @@ if st.button("Consult Qoracle"):
                             result.get('shift'), 
                             result.get('action')
                         ])
-                        # Success - Silent
+                        st.success("✅ Logged to Qoracle Memory.")
                     except Exception as e:
-                        # Fail - Silent (don't scare the user)
-                        pass
+                        st.error(f"MEMORY WRITE FAILED: {e}")
+                else:
+                    st.warning("⚠️ Memory Bank not connected (Check Log Above)")
 
             except Exception as e:
                 st.error(f"A resonance error occurred: {e}")
