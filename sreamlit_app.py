@@ -17,14 +17,13 @@ except:
 
 # 2. Google Sheets Connection (The Memory)
 def init_google_sheet():
-    # Check if the secret exists first
+    # If the secret key isn't there, just return None (Silent Fail)
     if "google_credentials" not in st.secrets:
-        st.error("MISSING SECRET: 'google_credentials' not found in Secrets.")
         return None
 
     try:
         # Load the JSON string from Secrets
-        # FIX: strict=False allows "Control Characters" (like hidden newlines) to pass through
+        # strict=False helps ignore minor formatting glitches
         json_creds = json.loads(st.secrets["google_credentials"], strict=False)
         
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -35,8 +34,8 @@ def init_google_sheet():
         sheet = client.open("Qoracle_Logs").sheet1
         return sheet
     except Exception as e:
-        # LOUD ERROR: This will tell us why it failed
-        st.error(f"MEMORY CONNECTION FAILED: {e}")
+        # SILENT MODE: If it fails, we just print to the invisible console, not the screen.
+        print(f"Memory Error: {e}")
         return None
 
 # Initialize the Sheet
@@ -128,7 +127,7 @@ if st.button("Consult Qoracle"):
 
                 st.caption(f"Signature: 023041413 | Processed by Hakeem")
                 
-                # 3. WRITE TO MEMORY (LOUD MODE)
+                # 3. WRITE TO MEMORY (SILENT MODE)
                 if memory_bank:
                     try:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -140,11 +139,9 @@ if st.button("Consult Qoracle"):
                             result.get('shift'), 
                             result.get('action')
                         ])
-                        st.success("✅ Logged to Qoracle Memory.")
                     except Exception as e:
-                        st.error(f"MEMORY WRITE FAILED: {e}")
-                else:
-                    st.warning("⚠️ Memory Bank not connected (Check Log Above)")
+                        # Fail silently
+                        pass
 
             except Exception as e:
                 st.error(f"A resonance error occurred: {e}")
