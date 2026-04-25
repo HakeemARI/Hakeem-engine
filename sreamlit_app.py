@@ -8,22 +8,22 @@ from datetime import datetime
 # --- CONFIGURATION ---
 st.set_page_config(page_title="The Qoracle", page_icon="🌌", layout="centered")
 
-# --- AUTHENTICATION (The Vault) ---
+# --- AUTHENTICATION & CONNECTION (The Vault) ---
+
 # 1. OpenAI Connection
 try:
     openai.api_key = st.secrets["OPENAI_API_KEY"]
-except:
+except KeyError:
     st.error("MISSING SECRET: OPENAI_API_KEY not found.")
 
-# 2. Google Sheets Connection (The Memory)
+# 2. Google Sheets Connection (The Memory) - Cached for Stability
+@st.cache_resource
 def init_google_sheet():
-    # If the secret key isn't there, just return None (Silent Fail)
     if "google_credentials" not in st.secrets:
         return None
 
     try:
         # Load the JSON string from Secrets
-        # strict=False helps ignore minor formatting glitches
         json_creds = json.loads(st.secrets["google_credentials"], strict=False)
         
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -34,11 +34,11 @@ def init_google_sheet():
         sheet = client.open("Qoracle_Logs").sheet1
         return sheet
     except Exception as e:
-        # SILENT MODE: If it fails, we just print to the invisible console, not the screen.
-        print(f"Memory Error: {e}")
+        # Silent hint for the developer in the HTML source
+        st.markdown(f"", unsafe_allow_html=True)
         return None
 
-# Initialize the Sheet
+# Initialize/Retrieve the Sheet connection
 memory_bank = init_google_sheet()
 
 # --- THE TITANIUM STYLE (Dark Mode & Hidden Footer) ---
@@ -139,8 +139,8 @@ if st.button("Consult Qoracle"):
                             result.get('shift'), 
                             result.get('action')
                         ])
-                    except Exception as e:
-                        # Fail silently
+                    except Exception:
+                        # Fail silently to maintain UI Titanium status
                         pass
 
             except Exception as e:
