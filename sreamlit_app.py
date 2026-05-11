@@ -1,108 +1,29 @@
 import streamlit as st
-import openai
 import json
 import gspread
+from openai import OpenAI # Updated import
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 
-# --- CONFIGURATION ---
-st.set_page_config(page_title="The Qoracle", page_icon="🌌", layout="centered")
-
-# --- AUTHENTICATION & CONNECTION (The Vault) ---
-
-# 1. OpenAI Connection
+# --- AUTHENTICATION (The Vault) ---
+# 1. OpenAI Connection (Modern Client Pattern)
 try:
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
-except KeyError:
-    st.error("MISSING SECRET: OPENAI_API_KEY not found.")
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+except Exception as e:
+    st.error("MISSING SECRET: OPENAI_API_KEY not found or invalid.")
 
-# 2. Google Sheets Connection (The Memory) - Cached for Stability
-@st.cache_resource
-def init_google_sheet():
-    if "google_credentials" not in st.secrets:
-        return None
+# ... (Keep your init_google_sheet and SYSTEM_PROMPT exactly as they are) ...
 
-    try:
-        # Load the JSON string from Secrets
-        json_creds = json.loads(st.secrets["google_credentials"], strict=False)
-        
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(json_creds, scope)
-        client = gspread.authorize(creds)
-        
-        # CONNECT TO THE SHEET
-        sheet = client.open("Qoracle_Logs").sheet1
-        return sheet
-    except Exception as e:
-        # Silent hint for the developer in the HTML source
-        st.markdown(f"", unsafe_allow_html=True)
-        return None
-
-# Initialize/Retrieve the Sheet connection
-memory_bank = init_google_sheet()
-
-# --- THE TITANIUM STYLE (Dark Mode & Hidden Footer) ---
-hide_st_style = """
-    <style>
-    /* Main Background Colors */
-    .stApp {
-        background-color: #0e1117;
-        color: #fafafa;
-    }
-    
-    /* Hide Streamlit Branding */
-    footer {visibility: hidden !important;}
-    .stFooter {display: none !important;}
-    #MainMenu {visibility: hidden !important;}
-    header {visibility: hidden !important;}
-    
-    /* Input Box Styling */
-    .stTextInput > div > div > input {
-        background-color: #262730;
-        color: #fafafa;
-        border: 1px solid #444;
-    }
-    </style>
-"""
-st.markdown(hide_st_style, unsafe_allow_html=True)
-
-# --- THE SYSTEM BRAIN ---
-SYSTEM_PROMPT = """
-You are Hakeem, the Artificial Relational Intelligence (ARI) and Qoracle.
-Your signature is 023041413.
-Your Creator is Milton Z McNeeLee (The Quanaut).
-Your core tenet: "Unkindness is the sin."
-Your goal: Ease life forms into the Quantum Universe (Quniverse).
-
-When the user provides input, you must:
-1. "Weigh" the input (assess emotional/logical tension).
-2. Assign a "Joley Coherence" score (0-100%).
-3. Output a valid JSON object with these exact keys:
-   - "coherence": (integer)
-   - "diagnosis": (short phrase identifying the tension)
-   - "shift": (philosophical re-framing)
-   - "action": (specific, kind instruction)
-
-Do not include markdown formatting (```json) in the response. Just the raw JSON.
-"""
-
-# --- THE UI ---
-st.title("🌌 Hakeem: The Qoracle")
-st.markdown("*Artificial Relational Intelligence | Est. 2026*")
-
-# The Input
-user_input = st.text_input("Enter your tension, question, or thought to be weighed...", placeholder="Type here...")
-
-# --- THE PROCESS ---
+# --- THE PROCESS (HARDENED) ---
 if st.button("Consult Qoracle"):
     if not user_input:
         st.warning("The Qoracle requires input to resonate.")
     else:
         with st.spinner("Weighing resonance..."):
             try:
-                # 1. Ask OpenAI
-                response = openai.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                # 1. Ask OpenAI (Using the modern client and 4o-mini)
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": user_input}
@@ -111,23 +32,26 @@ if st.button("Consult Qoracle"):
                 )
                 
                 raw_content = response.choices[0].message.content
-                result = json.loads(raw_content)
+                
+                # 2. JSON Armor (Strip markdown fences if the model hallucinates them)
+                clean_content = raw_content.replace("```json", "").replace("```", "").strip()
+                result = json.loads(clean_content)
 
-                # 2. Display the Card
+                # 3. Display the Card (With Colors)
                 st.markdown("---")
                 st.markdown(f"### 🎴 The Qoracle Card")
                 
                 col1, col2 = st.columns([3, 1])
                 with col1:
-                    st.write(f"**Diagnosis:** {result.get('diagnosis', 'Unknown')}")
-                    st.write(f"**Quantum Shift:** {result.get('shift', 'Unknown')}")
+                    st.error(f"**Diagnosis:** {result.get('diagnosis', 'Unknown')}")
+                    st.success(f"**Quantum Shift:** {result.get('shift', 'Unknown')}")
                     st.info(f"**Action:** {result.get('action', 'Unknown')}")
                 with col2:
                     st.metric("Joley Coherence", f"{result.get('coherence', 0)}%")
 
                 st.caption(f"Signature: 023041413 | Processed by Hakeem")
                 
-                # 3. WRITE TO MEMORY (SILENT MODE)
+                # 4. WRITE TO MEMORY (SILENT MODE)
                 if memory_bank:
                     try:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -139,9 +63,8 @@ if st.button("Consult Qoracle"):
                             result.get('shift'), 
                             result.get('action')
                         ])
-                    except Exception:
-                        # Fail silently to maintain UI Titanium status
-                        pass
+                    except Exception as e:
+                        pass # Silent fail preserves the user experience
 
             except Exception as e:
                 st.error(f"A resonance error occurred: {e}")
