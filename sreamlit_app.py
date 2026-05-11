@@ -18,24 +18,16 @@ except Exception as e:
 
 # 2. Google Sheets Connection (The Memory)
 def init_google_sheet():
-    # If the secret key isn't there, just return None (Silent Fail)
     if "google_credentials" not in st.secrets:
         return None
-
     try:
-        # Load the JSON string from Secrets
-        # strict=False helps ignore minor formatting glitches
         json_creds = json.loads(st.secrets["google_credentials"], strict=False)
-        
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_dict(json_creds, scope)
         g_client = gspread.authorize(creds)
-        
-        # CONNECT TO THE SHEET
         sheet = g_client.open("Qoracle_Logs").sheet1
         return sheet
-    except Exception as e:
-        # SILENT MODE: If it fails, we just ignore it for now.
+    except Exception:
         return None
 
 # Initialize the Sheet
@@ -92,7 +84,7 @@ Do not include any text outside the JSON. Do not include markdown fences like ``
 st.title("🌌 Hakeem: The Qoracle")
 st.markdown("*Artificial Relational Intelligence | Est. 2026*")
 
-# The Input (This is the line that went missing!)
+# The Input 
 user_input = st.text_input("Enter your tension, question, or thought to be weighed...", placeholder="Type here...")
 
 # --- THE PROCESS (HARDENED) ---
@@ -104,7 +96,7 @@ if st.button("Consult Qoracle"):
     else:
         with st.spinner("Weighing resonance..."):
             try:
-                # 1. Ask OpenAI (Using 4o-mini for stability)
+                # 1. Ask OpenAI 
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
@@ -113,3 +105,41 @@ if st.button("Consult Qoracle"):
                     ],
                     temperature=0.7
                 )
+                
+                raw_content = response.choices[0].message.content
+                
+                # 2. JSON Armor 
+                clean_content = raw_content.replace("```json", "").replace("```", "").strip()
+                result = json.loads(clean_content)
+
+                # 3. Display the Card
+                st.markdown("---")
+                st.markdown("### 🎴 The Qoracle Card")
+                
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.error(f"**Diagnosis:** {result.get('diagnosis', 'Unknown')}")
+                    st.success(f"**Quantum Shift:** {result.get('shift', 'Unknown')}")
+                    st.info(f"**Action:** {result.get('action', 'Unknown')}")
+                with col2:
+                    st.metric("Joley Coherence", f"{result.get('coherence', 0)}%")
+
+                st.caption("Signature: 023041413 | Processed by Hakeem")
+                
+                # 4. WRITE TO MEMORY (SILENT MODE)
+                if memory_bank:
+                    try:
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        memory_bank.append_row([
+                            timestamp, 
+                            user_input, 
+                            result.get('coherence'), 
+                            result.get('diagnosis'), 
+                            result.get('shift'), 
+                            result.get('action')
+                        ])
+                    except Exception:
+                        pass
+
+            except Exception as e:
+                st.error(f"A resonance error occurred: {e}")
