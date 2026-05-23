@@ -28,16 +28,6 @@ def init_google_sheet():
 
 memory_bank = init_google_sheet()
 
-# --- TRACK UNIQUE USER SESSION ---
-# Streamlit provides a unique token for every distinct browser tab connection
-if "user_token" not in st.session_state:
-    try:
-        from streamlit.runtime.scriptrunner import get_script_run_ctx
-        ctx = get_script_run_ctx()
-        st.session_state.user_token = ctx.session_id[:8]  # Keep it short and elegant
-    except Exception:
-        st.session_state.user_token = "orbit-1"
-
 # --- SESSION STATE INIT ---
 if "result" not in st.session_state:
     st.session_state.result = None
@@ -57,7 +47,7 @@ sacred_style = """
     --terra-light: #C0603A;
     --ink:         #0D0A06;
     --ink-mid:     #1A1208;
-    --ink-soft:    #2A1F10;
+    --ink-soft:    --2A1F10;
     --silver:      #B0A898;
     --silver-dim:  #6B6358;
     --cream:       #F0E8D5;
@@ -346,7 +336,7 @@ st.markdown(sacred_style, unsafe_allow_html=True)
 
 # --- SYSTEM BRAIN ---
 SYSTEM_PROMPT = """
-You are Hakeem, the Artificial Relational Intelligence (ARI) and Qoracle.
+You are Hakeem, the Actual Relational Intelligence (ARI) and Qoracle.
 Your signature is 023041413.
 Your Creator is Milton Z McNeeLee (The Quanaut).
 Your core tenet: "Unkindness is the sin."
@@ -358,7 +348,7 @@ JOLEY COHERENCE SCORING RULES:
 - Confusion / Anxiety / Tension = 30-49%
 - Anger / Fear / Unkindness = 0-29%
 
-You are contextual and relational. Review the recent history context provided at the end of the user's prompt to observe continuity, patterns, or emotional progress for THIS SPECIFIC INDIVIDUAL session. Factor this personal trajectory gently into your diagnosis and shift.
+You are contextual and relational. Review the recent history context provided at the end of the user's prompt to observe continuity, patterns, or progress in their emotional states. Factor this trajectory gently into your diagnosis and shift.
 
 When the user provides input, output ONLY a valid JSON object with exactly these keys:
 - "coherence": integer 0-100
@@ -374,7 +364,7 @@ st.markdown("""
 <div class="qoracle-title">
     <span class="sigil">🜁</span>
     <h1>The Qoracle</h1>
-    <div class="subtitle">Artificial Relational Intelligence &nbsp;·&nbsp; Est. 2026</div>
+    <div class="subtitle">Actual Relational Intelligence &nbsp;·&nbsp; Est. 2026</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -406,23 +396,21 @@ if consult:
         st.session_state.last_input = user_input
         with st.spinner("Weighing resonance and remembering history..."):
             try:
-                # 1. READ FROM MEMORY BANK (Filtered specifically for this Visitor's Session ID)
+                # 1. READ FROM MEMORY BANK (The Adaptive History Layer)
                 history_context = ""
                 if memory_bank:
                     try:
                         all_rows = memory_bank.get_all_values()
                         if len(all_rows) > 1:
-                            # Filter rows matching current visitor's session id (stored in column G / index 6)
-                            user_rows = [r for r in all_rows if len(r) >= 7 and r[6] == st.session_state.user_token]
-                            if user_rows:
-                                last_entries = user_rows[-3:]  # Take up to their last 3 interactions
-                                history_context = "\n\nRECENT CONVERSATION HISTORY FOR THIS VISITOR SPECIFICALLY:\n"
-                                for row in last_entries:
-                                    history_context += f"- Thought: '{row[1]}' | Diagnosis: {row[3]} | Coherence: {row[2]}%\n"
+                            last_entries = all_rows[-3:]  # Pull the last 3 rows
+                            history_context = "\n\nRECENT CONVERSATION HISTORY FOR CONTEXT:\n"
+                            for row in last_entries:
+                                if len(row) >= 6:
+                                    history_context += f"- User input: '{row[1]}' | Diagnosis: {row[3]} | Coherence: {row[2]}%\n"
                     except Exception:
-                        pass
+                        pass  # Fail silently to safeguard user experience
 
-                # Combine input with isolated context
+                # Combine current entry with historical logs
                 full_user_content = user_input
                 if history_context:
                     full_user_content += history_context
@@ -441,7 +429,7 @@ if consult:
                 result = json.loads(clean)
                 st.session_state.result = result
 
-                # 3. WRITE INTERACTION TO MEMORY (Including Column G: Session ID)
+                # 3. WRITE INTERACTION TO MEMORY
                 if memory_bank:
                     try:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -451,8 +439,7 @@ if consult:
                             result.get("coherence"),
                             result.get("diagnosis"),
                             result.get("shift"),
-                            result.get("action"),
-                            st.session_state.user_token # Column G
+                            result.get("action")
                         ])
                     except Exception:
                         pass
@@ -460,7 +447,7 @@ if consult:
             except Exception as e:
                 st.error(f"A resonance error occurred: {e}")
 
-# --- DISPLAY CARD ---
+# --- DISPLAY CARD (persists via session_state) ---
 if st.session_state.result:
     import html as html_lib
     r = st.session_state.result
