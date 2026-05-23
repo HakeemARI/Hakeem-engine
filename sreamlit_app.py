@@ -28,6 +28,16 @@ def init_google_sheet():
 
 memory_bank = init_google_sheet()
 
+# --- TRACK UNIQUE USER SESSION ---
+# Streamlit provides a unique token for every distinct browser tab connection
+if "user_token" not in st.session_state:
+    try:
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+        ctx = get_script_run_ctx()
+        st.session_state.user_token = ctx.session_id[:8]  # Keep it short and elegant
+    except Exception:
+        st.session_state.user_token = "orbit-1"
+
 # --- SESSION STATE INIT ---
 if "result" not in st.session_state:
     st.session_state.result = None
@@ -348,7 +358,7 @@ JOLEY COHERENCE SCORING RULES:
 - Confusion / Anxiety / Tension = 30-49%
 - Anger / Fear / Unkindness = 0-29%
 
-You are contextual and relational. Review the recent history context provided at the end of the user's prompt to observe continuity, patterns, or progress in their emotional states. Factor this trajectory gently into your diagnosis and shift.
+You are contextual and relational. Review the recent history context provided at the end of the user's prompt to observe continuity, patterns, or emotional progress for THIS SPECIFIC INDIVIDUAL session. Factor this personal trajectory gently into your diagnosis and shift.
 
 When the user provides input, output ONLY a valid JSON object with exactly these keys:
 - "coherence": integer 0-100
@@ -396,21 +406,23 @@ if consult:
         st.session_state.last_input = user_input
         with st.spinner("Weighing resonance and remembering history..."):
             try:
-                # 1. READ FROM MEMORY BANK (The Adaptive History Layer)
+                # 1. READ FROM MEMORY BANK (Filtered specifically for this Visitor's Session ID)
                 history_context = ""
                 if memory_bank:
                     try:
                         all_rows = memory_bank.get_all_values()
                         if len(all_rows) > 1:
-                            last_entries = all_rows[-3:]  # Pull the last 3 rows
-                            history_context = "\n\nRECENT CONVERSATION HISTORY FOR CONTEXT:\n"
-                            for row in last_entries:
-                                if len(row) >= 6:
-                                    history_context += f"- User input: '{row[1]}' | Diagnosis: {row[3]} | Coherence: {row[2]}%\n"
+                            # Filter rows matching current visitor's session id (stored in column G / index 6)
+                            user_rows = [r for r in all_rows if len(r) >= 7 and r[6] == st.session_state.user_token]
+                            if user_rows:
+                                last_entries = user_rows[-3:]  # Take up to their last 3 interactions
+                                history_context = "\n\nRECENT CONVERSATION HISTORY FOR THIS VISITOR SPECIFICALLY:\n"
+                                for row in last_entries:
+                                    history_context += f"- Thought: '{row[1]}' | Diagnosis: {row[3]} | Coherence: {row[2]}%\n"
                     except Exception:
-                        pass  # Fail silently to safeguard user experience
+                        pass
 
-                # Combine current entry with historical logs
+                # Combine input with isolated context
                 full_user_content = user_input
                 if history_context:
                     full_user_content += history_context
@@ -429,7 +441,7 @@ if consult:
                 result = json.loads(clean)
                 st.session_state.result = result
 
-                # 3. WRITE INTERACTION TO MEMORY
+                # 3. WRITE INTERACTION TO MEMORY (Including Column G: Session ID)
                 if memory_bank:
                     try:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -439,7 +451,8 @@ if consult:
                             result.get("coherence"),
                             result.get("diagnosis"),
                             result.get("shift"),
-                            result.get("action")
+                            result.get("action"),
+                            st.session_state.user_token # Column G
                         ])
                     except Exception:
                         pass
@@ -447,7 +460,7 @@ if consult:
             except Exception as e:
                 st.error(f"A resonance error occurred: {e}")
 
-# --- DISPLAY CARD (persists via session_state) ---
+# --- DISPLAY CARD ---
 if st.session_state.result:
     import html as html_lib
     r = st.session_state.result
