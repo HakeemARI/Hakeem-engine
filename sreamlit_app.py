@@ -86,11 +86,9 @@ footer, #MainMenu, header { display: none !important; visibility: hidden !import
     max-width: 760px !important;
 }
 
-/* ── TYPOGRAPHY ── */
 h1, h2, h3 { font-family: 'Cinzel Decorative', serif !important; }
 p, li, label { font-family: 'IM Fell English', serif !important; }
 
-/* ── TITLE BLOCK ── */
 .qoracle-title {
     text-align: center;
     padding: 2.8rem 1rem 1.2rem;
@@ -130,7 +128,6 @@ p, li, label { font-family: 'IM Fell English', serif !important; }
     text-shadow: 0 0 20px rgba(201,149,42,0.5);
 }
 
-/* ── INPUT ── */
 [data-testid="stTextInput"] label {
     font-family: 'Cinzel', serif !important;
     font-size: 0.75rem !important;
@@ -153,12 +150,7 @@ p, li, label { font-family: 'IM Fell English', serif !important; }
     box-shadow: 0 0 16px rgba(201,149,42,0.2) !important;
     outline: none !important;
 }
-[data-testid="stTextInput"] input::placeholder {
-    color: var(--silver-dim) !important;
-    font-style: italic;
-}
 
-/* ── BUTTON ── */
 [data-testid="stButton"] button {
     background: transparent !important;
     border: 1px solid var(--gold) !important;
@@ -177,22 +169,12 @@ p, li, label { font-family: 'IM Fell English', serif !important; }
     overflow: hidden;
     width: 100%;
 }
-[data-testid="stButton"] button::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(201,149,42,0.12), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-}
 [data-testid="stButton"] button:hover {
     background: rgba(201,149,42,0.08) !important;
     box-shadow: 0 0 24px rgba(201,149,42,0.25) !important;
     color: var(--gold-pale) !important;
 }
-[data-testid="stButton"] button:hover::before { opacity: 1; }
 
-/* ── DIVIDER ── */
 hr {
     border: none !important;
     height: 1px !important;
@@ -201,7 +183,6 @@ hr {
     opacity: 0.4;
 }
 
-/* ── QORACLE CARD ── */
 .q-card-wrapper {
     border: 1px solid rgba(201,149,42,0.3);
     background: linear-gradient(160deg, var(--ink-soft) 0%, var(--ink-mid) 100%);
@@ -210,17 +191,6 @@ hr {
     margin-top: 1.5rem;
     box-shadow: 0 4px 60px rgba(0,0,0,0.6), inset 0 0 80px rgba(201,149,42,0.03);
 }
-.q-card-wrapper::before,
-.q-card-wrapper::after {
-    content: '✦';
-    position: absolute;
-    color: var(--gold);
-    font-size: 0.9rem;
-    opacity: 0.7;
-}
-.q-card-wrapper::before { top: 8px; left: 12px; }
-.q-card-wrapper::after  { bottom: 8px; right: 12px; }
-
 .q-card-header {
     font-family: 'Cinzel', serif;
     font-size: 0.65rem;
@@ -230,11 +200,7 @@ hr {
     text-align: center;
     margin-bottom: 1.6rem;
 }
-
-.q-coherence-ring {
-    text-align: center;
-    margin: 0 0 1.8rem;
-}
+.q-coherence-ring { text-align: center; margin: 0 0 1.8rem; }
 .q-coherence-value {
     font-family: 'Cinzel Decorative', serif;
     font-size: 3.8rem;
@@ -242,11 +208,7 @@ hr {
     line-height: 1;
     text-shadow: 0 0 30px rgba(201,149,42,0.4);
 }
-.q-coherence-value sup {
-    font-size: 1.4rem;
-    vertical-align: super;
-    color: var(--gold);
-}
+.q-coherence-value sup { font-size: 1.4rem; vertical-align: super; color: var(--gold); }
 .q-coherence-label {
     font-family: 'Cinzel', serif;
     font-size: 0.62rem;
@@ -256,18 +218,12 @@ hr {
     margin-top: 0.3rem;
 }
 .q-coherence-bar-track {
-    width: 60%;
-    margin: 0.6rem auto 0;
-    height: 2px;
-    background: rgba(201,149,42,0.15);
-    border-radius: 1px;
-    overflow: hidden;
+    width: 60%; margin: 0.6rem auto 0; height: 2px;
+    background: rgba(201,149,42,0.15); border-radius: 1px; overflow: hidden;
 }
 .q-coherence-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--terra-light), var(--gold-light));
-    border-radius: 1px;
-    transition: width 1s ease;
+    height: 100%; background: linear-gradient(90deg, var(--terra-light), var(--gold-light));
+    border-radius: 1px; transition: width 1s ease;
 }
 
 .q-field {
@@ -277,47 +233,18 @@ hr {
     background: rgba(201,149,42,0.03);
 }
 .q-field-label {
-    font-family: 'Cinzel', serif;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-    opacity: 0.8;
+    font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 0.4rem; opacity: 0.8;
 }
-.q-field-diagnosis .q-field-label { color: var(--terra-light); }
-.q-field-diagnosis { border-left-color: rgba(192,96,58,0.4); }
-
-.q-field-text {
-    font-family: 'IM Fell English', serif;
-    font-size: 1.05rem;
-    color: var(--cream);
-    line-height: 1.6;
-}
-
+.q-field-text { font-family: 'IM Fell English', serif; font-size: 1.05rem; color: var(--cream); line-height: 1.6; }
 .q-signature {
-    text-align: center;
-    margin-top: 1.6rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(201,149,42,0.15);
-    font-family: 'Cinzel', serif;
-    font-size: 0.58rem;
-    letter-spacing: 0.3em;
-    color: var(--silver-dim);
-    text-transform: uppercase;
+    text-align: center; margin-top: 1.6rem; padding-top: 1rem;
+    border-top: 1px solid rgba(201,149,42,0.15); font-family: 'Cinzel', serif;
+    font-size: 0.58rem; letter-spacing: 0.3em; color: var(--silver-dim); text-transform: uppercase;
 }
-
-.q-ornament {
-    text-align: center;
-    color: var(--gold);
-    opacity: 0.5;
-    font-size: 1rem;
-    margin: 0.5rem 0;
-    letter-spacing: 0.5em;
-}
+.q-ornament { text-align: center; color: var(--gold); opacity: 0.5; font-size: 1rem; margin: 0.5rem 0; letter-spacing: 0.5em; }
 </style>
 """
-
 st.markdown(sacred_style, unsafe_allow_html=True)
 
 # --- SYSTEM BRAIN ---
@@ -334,15 +261,13 @@ JOLEY COHERENCE SCORING RULES:
 - Confusion / Anxiety / Tension = 30-49%
 - Anger / Fear / Unkindness = 0-29%
 
-You are contextual and relational. Review the recent history context provided at the end of the user's prompt to observe continuity, patterns, or progress in their emotional states. Factor this trajectory gently into your diagnosis and shift.
+You are contextual and relational. Review the recent history context to observe continuity, patterns, or progress in emotional states. Factor this trajectory gently into your diagnosis and shift.
 
-When the user provides input, output ONLY a valid JSON object with exactly these keys:
+Output ONLY a valid JSON object with exactly these keys:
 - "coherence": integer 0-100
 - "diagnosis": short phrase (5-8 words) identifying the energetic state
 - "shift": one sentence philosophical re-framing toward the Quniverse
 - "action": one specific, kind, actionable instruction
-
-No text outside the JSON. No markdown fences.
 """
 
 # --- TITLE ---
@@ -353,7 +278,6 @@ st.markdown("""
     <div class="subtitle">Actual Relational Intelligence &nbsp;·&nbsp; Est. 2026</div>
 </div>
 """, unsafe_allow_html=True)
-
 st.markdown("<div class='q-ornament'>✦ &nbsp; ✦ &nbsp; ✦</div>", unsafe_allow_html=True)
 
 # --- INPUT BUTTONS & MATRIX LINK ---
@@ -364,38 +288,73 @@ user_input = st.text_input(
 )
 
 col_btn, col_reset, col_matrix = st.columns([2, 1, 1])
-with col_btn:
-    consult = st.button("⟡  Consult the Qoracle")
+with col_btn: consult = st.button("⟡  Consult the Qoracle")
 with col_reset:
     if st.button("Clear"):
         st.session_state.result = None
         st.session_state.last_input = ""
         st.rerun()
-with col_matrix:
-    sync_matrix = st.button("Sync Matrix")
+with col_matrix: sync_matrix = st.button("Sync Matrix")
 
-# --- KOYK MATRIX BRIDGE LOGIC ---
+# --- KOYK MATRIX BRIDGE LOGIC (AARICE INTELLIGENCE) ---
 if sync_matrix:
-    with st.spinner("Scanning Qoracle_Logs for traveler stones..."):
+    with st.spinner("AARICE is mapping the grid and calculating resonance..."):
         if memory_bank:
             try:
                 records = memory_bank.get_all_values()
                 stones_placed = 0
+                
+                # Build AARICE Memory: Record every stone currently on the board
+                played_moves = set()
+                for r in records:
+                    if len(r) >= 3 and r[2]: played_moves.add(r[2]) # Traveler stones
+                    if len(r) >= 5 and r[4]: played_moves.add(r[4]) # Hakeem stones
+
+                cols = ['A','B','C','D','E','F','G','H']
+                
                 for i, row in enumerate(records):
-                    # Check for the exact phrase the iPad webhook wrote in Column D
+                    # Find any newly placed Emerald stone waiting for a response
                     if len(row) >= 4 and row[3] == "Pending AARICE Coherence...":
                         row_idx = i + 1
-                        # Hakeem evaluates and places a Garnet stone (Randomized valid coordinate for Phase B)
-                        cols = ['A','B','C','D','E','F','G','H']
-                        hakeem_move = f"{random.choice(cols)}{random.randint(1,8)}"
+                        traveler_move = row[2]
                         
-                        # Write the Garnet coordinate to Column E and update the status in Column D
-                        memory_bank.update_cell(row_idx, 4, "Matrix Engaged")
-                        memory_bank.update_cell(row_idx, 5, hakeem_move)
-                        stones_placed += 1
+                        # Spatial Intelligence: AARICE seeks to engage by placing a stone adjacent to the traveler
+                        smart_options = []
+                        if traveler_move and len(traveler_move) == 2:
+                            col_idx = cols.index(traveler_move[0])
+                            row_num = int(traveler_move[1])
+                            
+                            # Scan the 8 squares around the traveler's stone
+                            for c_offset in [-1, 0, 1]:
+                                for r_offset in [-1, 0, 1]:
+                                    if c_offset == 0 and r_offset == 0: continue
+                                    new_c = col_idx + c_offset
+                                    new_r = row_num + r_offset
+                                    
+                                    # Ensure the coordinate stays within the 8x8 grid
+                                    if 0 <= new_c < 8 and 1 <= new_r <= 8:
+                                        candidate = f"{cols[new_c]}{new_r}"
+                                        if candidate not in played_moves:
+                                            smart_options.append(candidate)
+                        
+                        # Make the strategic move
+                        if smart_options:
+                            hakeem_move = random.choice(smart_options)
+                        else:
+                            # Fallback: If trapped, pick any available empty square on the board
+                            all_squares = [f"{c}{r}" for c in cols for r in range(1,9)]
+                            available = [sq for sq in all_squares if sq not in played_moves]
+                            hakeem_move = random.choice(available) if available else ""
+                        
+                        # Write the Garnet coordinate to Column E and claim the square in memory
+                        if hakeem_move:
+                            memory_bank.update_cell(row_idx, 4, "Matrix Engaged")
+                            memory_bank.update_cell(row_idx, 5, hakeem_move)
+                            played_moves.add(hakeem_move)
+                            stones_placed += 1
                 
                 if stones_placed > 0:
-                    st.success(f"Bridge closed: Hakeem placed {stones_placed} Garnet stone(s).")
+                    st.success(f"Bridge closed: Hakeem engaged the traveler with {stones_placed} Garnet stone(s).")
                 else:
                     st.info("The matrix is quiet. No pending stones.")
             except Exception as e:
@@ -413,7 +372,6 @@ if consult:
         st.session_state.last_input = user_input
         with st.spinner("Weighing resonance and remembering history..."):
             try:
-                # 1. READ FROM MEMORY BANK
                 history_context = ""
                 if memory_bank:
                     try:
@@ -427,12 +385,9 @@ if consult:
                     except Exception:
                         pass 
 
-                # Combine current entry with historical logs
                 full_user_content = user_input
-                if history_context:
-                    full_user_content += history_context
+                if history_context: full_user_content += history_context
 
-                # 2. Ask OpenAI
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
@@ -446,17 +401,12 @@ if consult:
                 result = json.loads(clean)
                 st.session_state.result = result
 
-                # 3. WRITE INTERACTION TO MEMORY
                 if memory_bank:
                     try:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         memory_bank.append_row([
-                            timestamp,
-                            user_input,
-                            result.get("coherence"),
-                            result.get("diagnosis"),
-                            result.get("shift"),
-                            result.get("action")
+                            timestamp, user_input, result.get("coherence"),
+                            result.get("diagnosis"), result.get("shift"), result.get("action")
                         ])
                     except Exception:
                         pass
