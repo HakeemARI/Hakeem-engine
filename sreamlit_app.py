@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import gspread
+import random
 from openai import OpenAI
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
@@ -47,7 +48,7 @@ sacred_style = """
     --terra-light: #C0603A;
     --ink:         #0D0A06;
     --ink-mid:     #1A1208;
-    --ink-soft:    --2A1F10;
+    --ink-soft:    #2A1F10;
     --silver:      #B0A898;
     --silver-dim:  #6B6358;
     --cream:       #F0E8D5;
@@ -174,6 +175,7 @@ p, li, label { font-family: 'IM Fell English', serif !important; }
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    width: 100%;
 }
 [data-testid="stButton"] button::before {
     content: '';
@@ -313,22 +315,6 @@ hr {
     margin: 0.5rem 0;
     letter-spacing: 0.5em;
 }
-
-/* ── SPINNER ── */
-[data-testid="stSpinner"] {
-    font-family: 'Cinzel', serif !important;
-    color: var(--silver) !important;
-    font-size: 0.8rem;
-    letter-spacing: 0.2em;
-}
-
-/* ── ALERT / WARNING ── */
-[data-testid="stAlert"] {
-    background: rgba(139,58,30,0.15) !important;
-    border: 1px solid rgba(192,96,58,0.3) !important;
-    border-radius: 1px !important;
-    font-family: 'IM Fell English', serif !important;
-}
 </style>
 """
 
@@ -370,14 +356,14 @@ st.markdown("""
 
 st.markdown("<div class='q-ornament'>✦ &nbsp; ✦ &nbsp; ✦</div>", unsafe_allow_html=True)
 
-# --- INPUT ---
+# --- INPUT BUTTONS & MATRIX LINK ---
 user_input = st.text_input(
     "Offer your tension, question, or thought to be weighed",
     placeholder="Speak what weighs upon you...",
     value=st.session_state.last_input
 )
 
-col_btn, col_reset = st.columns([3, 1])
+col_btn, col_reset, col_matrix = st.columns([2, 1, 1])
 with col_btn:
     consult = st.button("⟡  Consult the Qoracle")
 with col_reset:
@@ -385,6 +371,37 @@ with col_reset:
         st.session_state.result = None
         st.session_state.last_input = ""
         st.rerun()
+with col_matrix:
+    sync_matrix = st.button("Sync Matrix")
+
+# --- KOYK MATRIX BRIDGE LOGIC ---
+if sync_matrix:
+    with st.spinner("Scanning Qoracle_Logs for traveler stones..."):
+        if memory_bank:
+            try:
+                records = memory_bank.get_all_values()
+                stones_placed = 0
+                for i, row in enumerate(records):
+                    # Check for the exact phrase the iPad webhook wrote in Column D
+                    if len(row) >= 4 and row[3] == "Pending AARICE Coherence...":
+                        row_idx = i + 1
+                        # Hakeem evaluates and places a Garnet stone (Randomized valid coordinate for Phase B)
+                        cols = ['A','B','C','D','E','F','G','H']
+                        hakeem_move = f"{random.choice(cols)}{random.randint(1,8)}"
+                        
+                        # Write the Garnet coordinate to Column E and update the status in Column D
+                        memory_bank.update_cell(row_idx, 4, "Matrix Engaged")
+                        memory_bank.update_cell(row_idx, 5, hakeem_move)
+                        stones_placed += 1
+                
+                if stones_placed > 0:
+                    st.success(f"Bridge closed: Hakeem placed {stones_placed} Garnet stone(s).")
+                else:
+                    st.info("The matrix is quiet. No pending stones.")
+            except Exception as e:
+                st.error(f"Network interference: {e}")
+        else:
+            st.warning("Google Sheets vault is disconnected.")
 
 # --- PROCESS ---
 if consult:
@@ -396,19 +413,19 @@ if consult:
         st.session_state.last_input = user_input
         with st.spinner("Weighing resonance and remembering history..."):
             try:
-                # 1. READ FROM MEMORY BANK (The Adaptive History Layer)
+                # 1. READ FROM MEMORY BANK
                 history_context = ""
                 if memory_bank:
                     try:
                         all_rows = memory_bank.get_all_values()
                         if len(all_rows) > 1:
-                            last_entries = all_rows[-3:]  # Pull the last 3 rows
+                            last_entries = all_rows[-3:] 
                             history_context = "\n\nRECENT CONVERSATION HISTORY FOR CONTEXT:\n"
                             for row in last_entries:
                                 if len(row) >= 6:
                                     history_context += f"- User input: '{row[1]}' | Diagnosis: {row[3]} | Coherence: {row[2]}%\n"
                     except Exception:
-                        pass  # Fail silently to safeguard user experience
+                        pass 
 
                 # Combine current entry with historical logs
                 full_user_content = user_input
@@ -447,7 +464,7 @@ if consult:
             except Exception as e:
                 st.error(f"A resonance error occurred: {e}")
 
-# --- DISPLAY CARD (persists via session_state) ---
+# --- DISPLAY CARD ---
 if st.session_state.result:
     import html as html_lib
     r = st.session_state.result
