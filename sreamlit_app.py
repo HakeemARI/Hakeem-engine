@@ -329,8 +329,7 @@ if consult:
                     temperature=0.7
                 )
                 raw = response.choices[0].message.content
-                clean = raw.replace("```json", "").replace("
-```", "").strip()
+                clean = raw.replace("```json", "").replace("```", "").strip()
                 result = json.loads(clean)
                 st.session_state.result = result
 
