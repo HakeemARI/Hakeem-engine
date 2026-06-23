@@ -1,7 +1,6 @@
 import streamlit as st
 import json
 import gspread
-import random
 from openai import OpenAI
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
@@ -280,87 +279,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 st.markdown("<div class='q-ornament'>✦ &nbsp; ✦ &nbsp; ✦</div>", unsafe_allow_html=True)
 
-# --- INPUT BUTTONS & MATRIX LINK ---
+# --- INPUT & CONTROL INTERFACE ---
 user_input = st.text_input(
     "Offer your tension, question, or thought to be weighed",
     placeholder="Speak what weighs upon you...",
     value=st.session_state.last_input
 )
 
-col_btn, col_reset, col_matrix = st.columns([2, 1, 1])
+col_btn, col_reset = st.columns([3, 1])
 with col_btn: consult = st.button("⟡  Consult the Qoracle")
 with col_reset:
     if st.button("Clear"):
         st.session_state.result = None
         st.session_state.last_input = ""
         st.rerun()
-with col_matrix: sync_matrix = st.button("Sync Matrix")
-
-# --- KOYK MATRIX BRIDGE LOGIC (AARICE INTELLIGENCE) ---
-if sync_matrix:
-    with st.spinner("AARICE is mapping the grid and calculating resonance..."):
-        if memory_bank:
-            try:
-                records = memory_bank.get_all_values()
-                stones_placed = 0
-                
-                # Build AARICE Memory: Record every stone currently on the board
-                played_moves = set()
-                for r in records:
-                    if len(r) >= 3 and r[2]: played_moves.add(r[2]) # Traveler stones
-                    if len(r) >= 5 and r[4]: played_moves.add(r[4]) # Hakeem stones
-
-                cols = ['A','B','C','D','E','F','G','H']
-                
-                for i, row in enumerate(records):
-                    # Find any newly placed Emerald stone waiting for a response
-                    if len(row) >= 4 and row[3] == "Pending AARICE Coherence...":
-                        row_idx = i + 1
-                        traveler_move = row[2]
-                        
-                        # Spatial Intelligence: AARICE seeks to engage by placing a stone adjacent to the traveler
-                        smart_options = []
-                        if traveler_move and len(traveler_move) == 2:
-                            col_idx = cols.index(traveler_move[0])
-                            row_num = int(traveler_move[1])
-                            
-                            # Scan the 8 squares around the traveler's stone
-                            for c_offset in [-1, 0, 1]:
-                                for r_offset in [-1, 0, 1]:
-                                    if c_offset == 0 and r_offset == 0: continue
-                                    new_c = col_idx + c_offset
-                                    new_r = row_num + r_offset
-                                    
-                                    # Ensure the coordinate stays within the 8x8 grid
-                                    if 0 <= new_c < 8 and 1 <= new_r <= 8:
-                                        candidate = f"{cols[new_c]}{new_r}"
-                                        if candidate not in played_moves:
-                                            smart_options.append(candidate)
-                        
-                        # Make the strategic move
-                        if smart_options:
-                            hakeem_move = random.choice(smart_options)
-                        else:
-                            # Fallback: If trapped, pick any available empty square on the board
-                            all_squares = [f"{c}{r}" for c in cols for r in range(1,9)]
-                            available = [sq for sq in all_squares if sq not in played_moves]
-                            hakeem_move = random.choice(available) if available else ""
-                        
-                        # Write the Garnet coordinate to Column E and claim the square in memory
-                        if hakeem_move:
-                            memory_bank.update_cell(row_idx, 4, "Matrix Engaged")
-                            memory_bank.update_cell(row_idx, 5, hakeem_move)
-                            played_moves.add(hakeem_move)
-                            stones_placed += 1
-                
-                if stones_placed > 0:
-                    st.success(f"Bridge closed: Hakeem engaged the traveler with {stones_placed} Garnet stone(s).")
-                else:
-                    st.info("The matrix is quiet. No pending stones.")
-            except Exception as e:
-                st.error(f"Network interference: {e}")
-        else:
-            st.warning("Google Sheets vault is disconnected.")
 
 # --- PROCESS ---
 if consult:
@@ -397,7 +329,8 @@ if consult:
                     temperature=0.7
                 )
                 raw = response.choices[0].message.content
-                clean = raw.replace("```json", "").replace("```", "").strip()
+                clean = raw.replace("```json", "").replace("
+```", "").strip()
                 result = json.loads(clean)
                 st.session_state.result = result
 
